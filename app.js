@@ -1,5 +1,7 @@
 const http = require('http');
 const MongoClient = require('mongodb').MongoClient;
+const request = require('request');
+
 
 // const hostname = '127.0.0.1';
 // const port = 3000;
@@ -25,4 +27,19 @@ MongoClient.connect(uri, function(err, client) {
    const collection = client.db("test").collection("devices");
    // perform actions on the collection object
    client.close();
+});
+
+
+request('https://maps.london.ca/arcgisa/rest/services/OpenData/OpenData_Transportation/MapServer/19/query?where=1%3D1&outFields=*&outSR=4326&f=json', { json: true }, (err, res, body) => {
+  if (err) { 
+    return console.log(err); 
+  }
+  else {
+    for (var thing in body.features) {
+      console.log(body.features[thing].geometry);
+    }
+    // console.log(JSON.parse(body));
+  }
+  
+  
 });
