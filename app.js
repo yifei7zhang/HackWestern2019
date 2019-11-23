@@ -3,7 +3,11 @@ const MongoClient = require('mongodb').MongoClient;
 const request = require('request');
 const Promise = require('promise');
 const rp = require('request-promise');
+
+var utilities = require('./utilities');
+
 /*
+
 // const hostname = '127.0.0.1';
 // const port = 3000;
 
@@ -24,10 +28,37 @@ MongoClient.connect(uri, function(err, client) {
    if(err) {
         console.log('Error occurred while connecting to MongoDB Atlas...\n',err);
    }
-   console.log('Connected...');
-   const collection = client.db("test").collection("devices");
-   // perform actions on the collection object
-   client.close();
+   else {
+    console.log('Connected...');
+    const collection = client.db("LondonBridge").collection("StreetLamps");
+    // perform actions on the collection object
+
+    // client.close();
+
+    let data = [{
+      "ObjectID": 100,
+       "score": 123
+   },{
+      "ObjectID": 101,
+      "score": 1232
+   },{
+      "ObjectID": 102,
+      "score": 12333
+   }];
+
+    console.log('database connected!');
+
+   collection.insertMany(data, (err, result) => {
+    if(err) {
+        console.log(err);
+        process.exit(0);
+    }
+    console.log(result);
+    client.close();
+    });
+
+  }
+
 });
 */
 
@@ -114,3 +145,24 @@ async function setBaseMultipliers(lightArray, eServiceArray, hospitalArray, scho
 }
 
 loadAll();
+
+request('https://opendata.arcgis.com/datasets/e2db218c663f4b9f9210150513a6c54a_19.geojson', { json: true }, (err, res, body) => {
+  if (err) { 
+    return console.log(err); 
+  }
+  else {
+    response = body;
+    // for (var thing in body.features) {
+    //   console.log(thing);
+    //   console.log(body.features[thing].properties);
+    //   console.log(body.features[thing].geometry);
+    // }
+  }
+
+});
+
+utilities.getGID({ 'x': -81.31660129950282, "y": 43.021370992093786 });
+utilities.getNeighbours(52707, { 'x': -81.31660129950282, "y": 43.021370992093786 })
+//utilities.getStreet([ -81.31660129950282, 43.021370992093786 ]);
+
+
