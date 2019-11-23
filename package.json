@@ -19,6 +19,8 @@
   "homepage": "https://github.com/yifei7zhang/HackWestern2019#readme",
   "dependencies": {
     "mongodb": "^3.3.4",
-    "request": "^2.88.0"
+    "promise": "^8.0.3",
+    "request": "^2.88.0",
+    "request-promise": "^4.2.5"
   }
 }
