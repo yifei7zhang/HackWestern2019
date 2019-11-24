@@ -230,11 +230,11 @@ MongoClient.connect(uri, { useUnifiedTopology: true },function(err, client) {
     const filePath = "./1574580460987googletest.jpg";
     const datum = exif.parseSync(filePath);
 
-    var rawLatLong = data.GPSInfo;
+    var rawLatLong = datum.GPSInfo;
     var coordinates = {"x": 0, "y": 0};
-    coordinates.x = parseFloat(rawLatLong.GPSLatitude[0] + rawLatLong.GPSLatitude[1] / 60 + rawLatLong.GPSLatitude[2]/3600);
-    coordinates.y = -parseFloat(rawLatLong.GPSLongitude[0] + rawLatLong.GPSLongitude[1] / 60 + rawLatLong.GPSLongitude[2]/3600);
-    
+    coordinates.x = -parseFloat(rawLatLong.GPSLongitude[0] + rawLatLong.GPSLongitude[1] / 60 + rawLatLong.GPSLongitude[2]/3600);
+    coordinates.y = parseFloat(rawLatLong.GPSLatitude[0] + rawLatLong.GPSLatitude[1] / 60 + rawLatLong.GPSLatitude[2]/3600);
+    console.log (coordinates);
     utilities.getGID(coordinates)
     .then((GID) => {
         collection.findOne({"ID": GID}, function(err, result) {
