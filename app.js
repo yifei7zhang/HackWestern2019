@@ -1,25 +1,10 @@
-const http = require('http');
 const MongoClient = require('mongodb').MongoClient;
 const request = require('request');
 const rp = require('request-promise');
-// const readExif = require('read-exif');
 
 var utilities = require('./utilities');
 var photoDownload = require('./photos');
-var hello = require('./exif');
 
-// const hostname = '127.0.0.1';
-// const port = 3000;
-
-// const server = http.createServer((req, res) => {
-//   res.statusCode = 200;
-//   res.setHeader('Content-Type', 'text/plain');
-//   res.end('Hello World\n');
-// });
-
-// server.listen(port, hostname, () => {
-//   console.log(`Server running at http://${hostname}:${port}/`);
-// });
 
 
 //// Grab priotity affector data
