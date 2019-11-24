@@ -48,10 +48,10 @@ utilities.getNeighbours = function (GID, coordinates){
 }
 
 utilities.getGID = function (coordinates){
-    return new Promise(async function(resolve, reject) {
-        var url = `https://maps.london.ca/arcgisa/rest/services/OpenData/OpenData_Transportation/MapServer/19/query?geometry=${coordinates.x}%2C${coordinates.y}&inSR=4326&outSR=4326&geometryType=esriGeometryPoint&spatialRel=esriSpatialRelContains&outFields=*&returnGeometry=true&f=json`;
+    return new Promise(function(resolve, reject) {
+        var url = `https://maps.london.ca/arcgisa/rest/services/OpenData/OpenData_Transportation/MapServer/19/query?geometry=${coordinates.x}%2C${coordinates.y}&inSR=4326&outSR=4326&geometryType=esriGeometryPoint&spatialRel=esriSpatialRelContains&outFields=*&returnGeometry=true&f=json&distance=100&units=esriSRUnit_Meter`;
         try {
-            request.get(url, async function(error, response, body) {
+            request.get(url, function(error, response, body) {
                 var res = JSON.parse(body);
                 var ans = res.features[0].attributes.GIS_ID;
                 return resolve(ans);

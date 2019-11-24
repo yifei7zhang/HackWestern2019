@@ -167,17 +167,17 @@ function getAffector(id){
 //// Connect to MongoDB and load in default information
  
 const uri = "mongodb+srv://LondonBridge:isFallingDown@cluster0-yen05.mongodb.net/test?retryWrites=true&w=majority"
-MongoClient.connect(uri, function(err, client) {
-   if(err) {
+MongoClient.connect(uri, { useUnifiedTopology: true },function(err, client) {
+    if(err) {
         console.log('Error occurred while connecting to MongoDB Atlas...\n',err);
-   }
-   else {
+    }
+
     console.log('Connected...');
     const collection = client.db("LondonBridge").collection("StreetLamps");
     // perform actions on the collection object
     
     console.log('database connected!');
-
+   /*else {
     console.log("Loading data");
     var data = [];
     request.get('https://opendata.arcgis.com/datasets/e2db218c663f4b9f9210150513a6c54a_19.geojson', { json: true }, async (err, res, body) => {
@@ -202,11 +202,11 @@ MongoClient.connect(uri, function(err, client) {
           nearEmergency = true;
         }
         if (schoolIDMatch.includes(id)){
-          nearSchool = true;
+          nearSchool = true;    
         }
         
         data.push({"ID": id, "CLASS": body.features[j].properties.RoadClass, "COORDINATE": body.features[j].geometry, 
-        "NEARHOSPITAL": nearHospital, "NEAREMERGENCY": nearEmergency, "NEARSCHOOL": nearSchool, "COUNT": 0});
+        "NEARHOSPITAL": nearHospital, "NEAREMERGENCY": nearEmergency, "NEARSCHOOL": nearSchool, "BASEMULTIPLIER": 0, "COUNT": 0});
       }
       console.log('Entering db');
 
@@ -216,14 +216,45 @@ MongoClient.connect(uri, function(err, client) {
             process.exit(0);
         }
         console.log(result);
-        client.close();
         });
     }
-    });
+    });*/
 
-  }
+    /*collection.updateMany({}, { $set: {"BASEMULTIPLIER": 1}}, function(err, result) {
+        if (err) throw err;
+        console.log("Added multipliers");
+    });*/
+
+    // Insert code to pass in coordinates
+    var coordinates = {"x":-81.2651,"y":43.0078693};
+    utilities.getGID(coordinates)
+    .then((GID) => {
+        collection.findOne({"ID": GID}, function(err, result) {
+            if (err) throw err;
+            console.log(result);
+    
+            var multiplier = 1;
+            multiplier *= (result.NEARHOSPITAL ? 1.1: 1);
+            multiplier *= (result.NEAREMERGENCY ? 1.1: 1);
+            multiplier *= (result.NEARSCHOOL ? 1.1: 1.4);
+
+            console.log(multiplier);
+
+            collection.updateOne({"ID": GID}, { $set: {"BASEMULTIPLIER": multiplier}}, function(err, result) {
+                console.log("Updated ID " + GID);
+                client.close();
+            });
+        });
+    });
 });
       
+
+
+//multiplier = (1.1 * ()) * (1.1 * ()) * (1.1 *());
+
+//collection.update({"ID": GID}, { $set: {"BASEMULTIPLIER": }})
+
+
 
 /*
 function loadData(){
