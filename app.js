@@ -1,12 +1,10 @@
 const http = require('http');
 const MongoClient = require('mongodb').MongoClient;
 const request = require('request');
-const Promise = require('promise');
 const rp = require('request-promise');
 
 var utilities = require('./utilities');
 
-/*
 
 // const hostname = '127.0.0.1';
 // const port = 3000;
@@ -20,7 +18,23 @@ var utilities = require('./utilities');
 // server.listen(port, hostname, () => {
 //   console.log(`Server running at http://${hostname}:${port}/`);
 // });
-
+/*
+async function loadData(){
+  await rp('https://opendata.arcgis.com/datasets/e2db218c663f4b9f9210150513a6c54a_19.geojson', { json: true }, (err, res, body) => {
+  if (err) { 
+      return console.log(err); 
+    }
+    else {
+      var data = [];
+      for (var i = 0; i<body.length; ++i){
+        data.push({"ObjectID": body.features[i].properties.GIS_ID,
+                    "score": 1.2,
+                    "coordinates": body.features[i].geometry});
+      }
+      return data;
+    }
+  });
+}
 
 // replace the uri string with your connection string.
 const uri = "mongodb+srv://LondonBridge:isFallingDown@cluster0-yen05.mongodb.net/test?retryWrites=true&w=majority"
@@ -32,22 +46,9 @@ MongoClient.connect(uri, function(err, client) {
     console.log('Connected...');
     const collection = client.db("LondonBridge").collection("StreetLamps");
     // perform actions on the collection object
-
     // client.close();
-
-    let data = [{
-      "ObjectID": 100,
-       "score": 123
-   },{
-      "ObjectID": 101,
-      "score": 1232
-   },{
-      "ObjectID": 102,
-      "score": 12333
-   }];
-
+    let data = await loadData();
     console.log('database connected!');
-
    collection.insertMany(data, (err, result) => {
     if(err) {
         console.log(err);
@@ -56,19 +57,128 @@ MongoClient.connect(uri, function(err, client) {
     console.log(result);
     client.close();
     });
-
   }
-
 });
 */
 
-// ************************ Everything above this is a place into database function? ***********************************
-// ************************ Everything above this is a place into database function? ***********************************
-// ************************ Everything above this is a place into database function? ***********************************
-// ************************ Everything above this is a place into database function? ***********************************
-// ************************ Everything above this is a place into database function? ***********************************
+/*var data = {};
+data.format = async function (){
+  await rp('https://opendata.arcgis.com/datasets/e2db218c663f4b9f9210150513a6c54a_19.geojson', { json: true }, (err, res, body) => {
+  if (err) { 
+      return console.log(err); 
+    }
+    else {
+      for (var i = 0; i < body.length; ++i){
+        data.push({"ObjectID": body.features[i].properties.GIS_ID,
+                  "score": 1.2,
+                  "coordinates": body.features[i].geometry});
+      }
+      return body
+    }
+  });
+}
+*/
+const uri = "mongodb+srv://LondonBridge:isFallingDown@cluster0-yen05.mongodb.net/test?retryWrites=true&w=majority"
+MongoClient.connect(uri, function(err, client) {
+   if(err) {
+        console.log('Error occurred while connecting to MongoDB Atlas...\n',err);
+   }
+   else {
+    console.log('Connected...');
+    const collection = client.db("LondonBridge").collection("StreetLamps");
+    // perform actions on the collection object
+    
+    console.log('database connected!');
+
+    console.log("Loading data");
+    request('https://opendata.arcgis.com/datasets/e2db218c663f4b9f9210150513a6c54a_19.geojson', { json: true }, (err, res, body) => {
+    if (err) { 
+      return console.log(err); 
+    }
+    else {
+
+      console.log('Entering db');
+
+      collection.insertMany(body.features, (err, result) => {
+        if(err) {
+            console.log(err);
+            process.exit(0);
+        }
+        console.log(result);
+        client.close();
+        });
+    }
+    });
+
+  }
+});
+
+/*
+function loadData(){
+  return new Promise(async function(resolve, reject) {
+      var url = 'https://opendata.arcgis.com/datasets/e2db218c663f4b9f9210150513a6c54a_19.geojson';
+      var data = [];
+      try {
+        request(url, { json: true }, (err, res, body) => {
+          if (err) { 
+              return console.log(err); 
+            }
+            else {
+              for (var i = 0; i < body.length; ++i){
+                data.push({"ObjectID": body.features[i].properties.GIS_ID,
+                          "score": 1.2,
+                          "coordinates": body.features[i].geometry});
+              }
+              return resolve(data);
+            }
+          });
+      } catch (e) {
+          console.log(e);
+          return reject(url); // something fucked up
+      }
+  });
+}
 
 
+ function loadDB (){
+  return new Promise(function(resolve, reject) {
+    const uri = "mongodb+srv://LondonBridge:isFallingDown@cluster0-yen05.mongodb.net/test?retryWrites=true&w=majority"
+    
+      try {
+        MongoClient.connect(uri, async function(err, client) {
+          if(err) {
+               console.log('Error occurred while connecting to MongoDB Atlas...\n',err);
+          }
+          else {
+           console.log('Connected...');
+           const collection = client.db("LondonBridge").collection("StreetLamps");
+           // perform actions on the collection object
+           
+           console.log("Loading data");
+           var data = await loadData();
+       
+           console.log('database connected!');
+           console.log(data);
+       
+          collection.insertMany(data, (err, result) => {
+           if(err) {
+               console.log(err);
+               process.exit(0);
+           }
+           console.log(result);
+           client.close();
+           });
+       
+         }
+       });
+      } catch (e) {
+          console.log(e);
+          return reject(uri); // something fucked up
+      }
+  });
+}
+
+*/
 // Grab API data for streetlights functions
 async function loadLight(){
   await rp('https://opendata.arcgis.com/datasets/e2db218c663f4b9f9210150513a6c54a_19.geojson', { json: true }, (err, res, body) => {
@@ -76,6 +186,8 @@ async function loadLight(){
       return console.log(err); 
     }
     else {
+
+      console.log('printing now');
       return body;
     }
   });
@@ -126,13 +238,14 @@ async function loadPaths(){
 
 async function loadAll(){
 
+  console.log('starting in loadall')
   var lightArray = await loadLight();
-  console.log(lightArray[0]);
+  console.log('ending in loadall')
   var eServiceArray = await loadEmergency();
   var hospitalArray = await loadHospitals();
   var schoolArray = await loadSchools();
   var pathArray = await loadPaths();
-  var multipliers = setBaseMultipliers(lightArray, eServiceArray, hospitalArray, schoolArray, pathArray);
+  //var multipliers = setBaseMultipliers(lightArray, eServiceArray, hospitalArray, schoolArray, pathArray);
 }
 
 async function setBaseMultipliers(lightArray, eServiceArray, hospitalArray, schoolArray, pathArray){
@@ -144,7 +257,11 @@ async function setBaseMultipliers(lightArray, eServiceArray, hospitalArray, scho
   }*/
 }
 
-loadAll();
+
+/*console.log("begin")
+loadLight().then((res) => console.log(res));
+console.log('end')*/
+
 
 request('https://opendata.arcgis.com/datasets/e2db218c663f4b9f9210150513a6c54a_19.geojson', { json: true }, (err, res, body) => {
   if (err) { 
@@ -164,5 +281,4 @@ request('https://opendata.arcgis.com/datasets/e2db218c663f4b9f9210150513a6c54a_1
 utilities.getGID({ 'x': -81.31660129950282, "y": 43.021370992093786 });
 utilities.getNeighbours(52707, { 'x': -81.31660129950282, "y": 43.021370992093786 })
 //utilities.getStreet([ -81.31660129950282, 43.021370992093786 ]);
-
 
