@@ -15,7 +15,7 @@ utilities.getStreet = function (coordinates){
             });
         } catch (e) {
             console.log(e);
-            return reject(url); // something fucked up
+            return reject(url);
         }
     });
 }
@@ -42,7 +42,7 @@ utilities.getNeighbours = function (GID, coordinates){
             });
         } catch (e) {
             console.log(e);
-            return reject(url); // something fucked up
+            return reject(url);
         }
     });
 }
@@ -58,7 +58,7 @@ utilities.getGID = function (coordinates){
             });
         } catch (e) {
             console.log(e);
-            return reject(url); // something fucked up
+            return reject(url);
         }
     });
 }
