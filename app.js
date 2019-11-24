@@ -4,8 +4,7 @@ const rp = require('request-promise');
 
 var utilities = require('./utilities');
 var photoDownload = require('./photos');
-
-
+var emailer = require('./email');
 
 //// Grab priotity affector data
 
@@ -233,6 +232,8 @@ MongoClient.connect(uri, { useUnifiedTopology: true },function(err, client) {
             collection.updateOne({"ID": GID}, { $set: {"BASEMULTIPLIER": multiplier, "COUNT": result.COUNT + 1, "MULTIPIER": multiplier * (result.COUNT + 1)}}, function(err, result) {
                 console.log("Updated ID " + GID);
                 client.close();
+                emailer.mailOptions.text = `Request for Streetlight maintenance: There are ${result.COUNT+1} for service on streetlight (GID ${GID}).`;
+                emailer.sendMail(emailer.mailOptions);
             });
         });
     });
