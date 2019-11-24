@@ -2,9 +2,11 @@ const http = require('http');
 const MongoClient = require('mongodb').MongoClient;
 const request = require('request');
 const rp = require('request-promise');
+// const readExif = require('read-exif');
 
 var utilities = require('./utilities');
-
+var photoDownload = require('./photos');
+var hello = require('./exif');
 
 // const hostname = '127.0.0.1';
 // const port = 3000;
@@ -249,14 +251,6 @@ MongoClient.connect(uri, { useUnifiedTopology: true },function(err, client) {
 });
       
 
-
-//multiplier = (1.1 * ()) * (1.1 * ()) * (1.1 *());
-
-//collection.update({"ID": GID}, { $set: {"BASEMULTIPLIER": }})
-
-
-
-/*
 function loadData(){
   return new Promise(async function(resolve, reject) {
       var url = 'https://opendata.arcgis.com/datasets/e2db218c663f4b9f9210150513a6c54a_19.geojson';
@@ -277,7 +271,7 @@ function loadData(){
           });
       } catch (e) {
           console.log(e);
-          return reject(url); // something fucked up
+          return reject(url);
       }
   });
 }
@@ -316,79 +310,25 @@ function loadData(){
        });
       } catch (e) {
           console.log(e);
-          return reject(uri); // something fucked up
+          return reject(uri);
       }
   });
 }
 
-*/
-// Grab JSON from API to get data on locations of street lights
-// Original base code format
-/* async function loadLight(){
-  await rp('https://opendata.arcgis.com/datasets/e2db218c663f4b9f9210150513a6c54a_19.geojson', { json: true }, (err, res, body) => {
-  if (err) { 
-      return console.log(err); 
-    }
-    else {
-      return body;
-    }
-  });
- */
-
-
-/* utilities.getGID({ 'x': -81.31660129950282, "y": 43.021370992093786 });
-utilities.getNeighbours(52707, { 'x': -81.31660129950282, "y": 43.021370992093786 }) */
-//utilities.getStreet([ -81.31660129950282, 43.021370992093786 ]);
 
 
 
 
-// ----------------------------------------------- A fat load of shit -----------------------------------------------
-/* 
-// Grab locations for emergency services
-request('https://opendata.arcgis.com/datasets/174ed0d5be31424dab612268db1fc460_1.geojson', { json: true }, (err, res, body) => {
-  if (err) { 
-    return console.log(err); 
-  }
-  else {
-    for (var i = 0; i < body.features.length; ++i){
-      emergencyServiceArray.push(body.features[i].geometry);
-    }
-  }
-});
+photoDownload();
 
-// Grab locations for hospitals
-request('https://opendata.arcgis.com/datasets/a1ca22a405fe4ad9852477a7add40565_2.geojson', { json: true }, (err, res, body) => {
-  if (err) { 
-    return console.log(err); 
-  }
-  else {
-    for (var i = 0; i < body.features.length; ++i){
-      hospitalArray.push(body.features[i].geometry);
-    }
-  }
-});
 
-// Grab locations for schools
-request('https://opendata.arcgis.com/datasets/cabb026f825348ae9c606f2c8b013e21_4.geojson', { json: true }, (err, res, body) => {
-  if (err) { 
-    return console.log(err); 
-  }
-  else {
-    for (var i = 0; i < body.features.length; ++i){
-      schoolArray.push(body.features[i].geometry);
-    }
-  }
-});
+var exif = require( "jpeg-exif");
+ 
+const filePath = "./1574580460987googletest.jpg";
+const data = exif.parseSync(filePath);
 
-// Grab locations for paths
-request('https://opendata.arcgis.com/datasets/a1c044cbeb5c4030909764177cd35a26_2.geojson', { json: true }, (err, res, body) => {
-  if (err) { 
-    return console.log(err); 
-  }
-  else {
-    for (var i = 0; i < body.features.length; ++i){
-      pathArray.push(body.features[i].geometry);
-    }
-  }
-}); */
+var rawLatLong = data.GPSInfo;
+var coordinates = {"x": 0, "y": 0};
+coordinates.x = parseFloat(rawLatLong.GPSLatitude[0] + rawLatLong.GPSLatitude[1] / 60 + rawLatLong.GPSLatitude[2]/3600);
+coordinates.y = -parseFloat(rawLatLong.GPSLongitude[0] + rawLatLong.GPSLongitude[1] / 60 + rawLatLong.GPSLongitude[2]/3600);
+console.log(coordinates);
