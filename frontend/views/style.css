@@ -1,0 +1,51 @@
+* {
+  font-family: 'Nunito Sans', sans-serif;
+  color: #004439;
+}
+
+#banner {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 10%;
+}
+
+#logo {
+  margin-left: 0%;
+}
+
+#title {
+  margin-right: 0%;
+}
+
+h1 {
+  font-size: 4.5em;
+  margin-top: 15%;
+  margin-left: -55%;
+  font-family: 'Montserrat', sans-serif;
+}
+
+h2 {
+  font-size: 3em;
+}
+
+h4 {
+  font-size: 2em;
+}
+
+form {
+  margin-top: 3%;
+}
+
+label {
+  font-size: 2em;
+  margin-top: 1%;
+  margin-bottom: 1%;
+}
+
+button {
+  background-color: #004339 !important;
+}
+
+a {
+  font-size: 1.5em;
+}
