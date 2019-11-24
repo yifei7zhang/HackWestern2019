@@ -1,0 +1,75 @@
+    <html>
+    <head>
+    <meta charset="utf-8" />
+    <title>London Map</title>
+    <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
+
+    <!-- Load Leaflet from CDN -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.5.1/dist/leaflet.css"/>
+    <script src="https://unpkg.com/leaflet@1.5.1/dist/leaflet.js"></script>
+
+    <!-- Load Esri Leaflet from CDN -->
+    <script src="https://unpkg.com/esri-leaflet@2.3.2/dist/esri-leaflet.js"></script>
+
+    <!-- Load Esri Leaflet Heatmap from CDN -->
+    <script src="leaflet-heat.js"></script>
+
+    <!-- Load Esri Leaflet MarkerCluster from CDN -->
+    <link rel="stylesheet" type="text/css" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css">
+    <link rel="stylesheet" type="text/css" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css"></link>
+    <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
+    <script src="https://unpkg.com/esri-leaflet-cluster@2.0.1/dist/esri-leaflet-cluster.js"></script>
+
+    <!-- Load Esri Leaflet Renderers -->
+    <!-- This will hook into Esri Leaflet to get renderer info when adding a feature layer -->
+    <script src="https://unpkg.com/esri-leaflet-renderers@2.0.6/dist/esri-leaflet-renderers.js" ></script>
+
+    <style>
+        body { margin:0; padding:0; }
+        #map { position: absolute; top:0; bottom:0; right:0; left:0; }
+    </style>
+    </head>
+    <body>
+
+    <div id="map"></div>
+
+    <script>
+    var map = L.map('map').setView([43.0096, -81.2737], 12);
+    L.esri.basemapLayer('Streets').addTo(map);
+    L.esri.featureLayer({
+        url: 'https://maps.london.ca/arcgisa/rest/services/OpenData/OpenData_BaseMaps/MapServer/51'
+    }).addTo(map);
+    
+    
+    var icon = L.icon({
+        iconUrl: "icon.png",
+        iconSize: [128, 128],
+        iconAnchor: [64, 64]
+    });
+
+    /*var lights = L.esri.featureLayer({
+        url: 'https://maps.london.ca/arcgisa/rest/services/OpenData/OpenData_Transportation/MapServer/19',
+        pointToLayer: function (geojson, latlng) {
+            return L.marker(latlng, { 
+                icon:icon
+            });
+        },
+        ignoreRenderer: true
+    }).addTo(map);*/
+
+    L.marker([43.0096, -81.2737], {icon: icon}).addTo(map);
+    
+    var lights = L.esri.Cluster.featureLayer({
+        url: 'https://maps.london.ca/arcgisa/rest/services/OpenData/OpenData_Transportation/MapServer/19',
+        polygonOptions: {
+            color: '#2d84c8'
+        },
+        pointToLayer: function (geojson, latlng) {
+            return L.circleMarker(latlng, 10, {
+                color: '#2D84C8'
+            });
+        }
+    }).addTo(map);
+    </script>
+    </body>
+    </html>
