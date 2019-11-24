@@ -167,82 +167,85 @@ function getAffector(id){
 }
 
 //// Connect to MongoDB and load in default information
- 
-const uri = "mongodb+srv://LondonBridge:isFallingDown@cluster0-yen05.mongodb.net/test?retryWrites=true&w=majority"
+const uri = "mongodb+srv://LondonBridge:isFallingDown@cluster0-yen05.mongodb.net/test?retryWrites=true&w=majority";
+var setup = true;
 MongoClient.connect(uri, { useUnifiedTopology: true },function(err, client) {
-    if(err) {
-        console.log('Error occurred while connecting to MongoDB Atlas...\n',err);
+    if (err) {
+        console.log('Error occurred while connecting to MongoDB Atlas...\n', err);
     }
 
     console.log('Connected...');
     const collection = client.db("LondonBridge").collection("StreetLamps");
-    // perform actions on the collection object
-    
     console.log('database connected!');
-   /*else {
-    console.log("Loading data");
-    var data = [];
-    request.get('https://opendata.arcgis.com/datasets/e2db218c663f4b9f9210150513a6c54a_19.geojson', { json: true }, async (err, res, body) => {
-    if (err) { 
-      return console.log(err); 
-    }
-    else {
-      var hospitalIDMatch = await getAffector(1);
-      var emergencyIDMatch = await getAffector(2);
-      var schoolIDMatch = await getAffector(3);
+   
+    // FIRST TIME SETUP FOR NEW DATABASE
+    if (setup == false) {
+        console.log("Loading data");
+        var data = [];
+        request.get('https://opendata.arcgis.com/datasets/e2db218c663f4b9f9210150513a6c54a_19.geojson', { json: true }, async (err, res, body) => {
+        if (err) { 
+        return console.log(err); 
+        }
+        else {
+        var hospitalIDMatch = await getAffector(1);
+        var emergencyIDMatch = await getAffector(2);
+        var schoolIDMatch = await getAffector(3);
 
-      for (var j in body.features) {
-        var id = body.features[j].properties.GIS_ID;
-        var nearHospital = false;
-        var nearEmergency = false;
-        var nearSchool = false;
+        for (var j in body.features) {
+            var id = body.features[j].properties.GIS_ID;
+            var nearHospital = false;
+            var nearEmergency = false;
+            var nearSchool = false;
 
-        if (hospitalIDMatch.includes(id)){
-          nearHospital = true;
+            if (hospitalIDMatch.includes(id)){
+            nearHospital = true;
+            }
+            if (emergencyServiceArray.includes(id)){
+            nearEmergency = true;
+            }
+            if (schoolIDMatch.includes(id)){
+            nearSchool = true;    
+            }
+            
+            data.push({"ID": id, "CLASS": body.features[j].properties.RoadClass, "COORDINATE": body.features[j].geometry, 
+            "NEARHOSPITAL": nearHospital, "NEAREMERGENCY": nearEmergency, "NEARSCHOOL": nearSchool, "BASEMULTIPLIER": 1, "COUNT": 0});
         }
-        if (emergencyServiceArray.includes(id)){
-          nearEmergency = true;
-        }
-        if (schoolIDMatch.includes(id)){
-          nearSchool = true;    
-        }
-        
-        data.push({"ID": id, "CLASS": body.features[j].properties.RoadClass, "COORDINATE": body.features[j].geometry, 
-        "NEARHOSPITAL": nearHospital, "NEAREMERGENCY": nearEmergency, "NEARSCHOOL": nearSchool, "BASEMULTIPLIER": 0, "COUNT": 0});
-      }
-      console.log('Entering db');
+        console.log('Inserting into db');
 
-      collection.insertMany(data, (err, result) => {
-        if(err) {
-            console.log(err);
-            process.exit(0);
+        collection.insertMany(data, (err, result) => {
+            if(err) {
+                console.log(err);
+                process.exit(0);
+            }
+            console.log(result);
+            });
         }
-        console.log(result);
         });
     }
-    });*/
 
-    /*collection.updateMany({}, { $set: {"BASEMULTIPLIER": 1}}, function(err, result) {
-        if (err) throw err;
-        console.log("Added multipliers");
-    });*/
+    // Download a photo of a lamp post and update the request count
+    photoDownload();
+    var exif = require( "jpeg-exif");
+    
+    const filePath = "./1574580460987googletest.jpg";
+    const datum = exif.parseSync(filePath);
 
-    // Insert code to pass in coordinates
-    var coordinates = {"x":-81.2651,"y":43.0078693};
+    var rawLatLong = data.GPSInfo;
+    var coordinates = {"x": 0, "y": 0};
+    coordinates.x = parseFloat(rawLatLong.GPSLatitude[0] + rawLatLong.GPSLatitude[1] / 60 + rawLatLong.GPSLatitude[2]/3600);
+    coordinates.y = -parseFloat(rawLatLong.GPSLongitude[0] + rawLatLong.GPSLongitude[1] / 60 + rawLatLong.GPSLongitude[2]/3600);
+    
     utilities.getGID(coordinates)
     .then((GID) => {
         collection.findOne({"ID": GID}, function(err, result) {
             if (err) throw err;
-            console.log(result);
     
             var multiplier = 1;
             multiplier *= (result.NEARHOSPITAL ? 1.1: 1);
             multiplier *= (result.NEAREMERGENCY ? 1.1: 1);
             multiplier *= (result.NEARSCHOOL ? 1.1: 1.4);
 
-            console.log(multiplier);
-
-            collection.updateOne({"ID": GID}, { $set: {"BASEMULTIPLIER": multiplier}}, function(err, result) {
+            collection.updateOne({"ID": GID}, { $set: {"BASEMULTIPLIER": multiplier, "COUNT": result.COUNT + 1, "MULTIPIER": multiplier * (result.COUNT + 1)}}, function(err, result) {
                 console.log("Updated ID " + GID);
                 client.close();
             });
@@ -250,7 +253,7 @@ MongoClient.connect(uri, { useUnifiedTopology: true },function(err, client) {
     });
 });
       
-
+/*
 function loadData(){
   return new Promise(async function(resolve, reject) {
       var url = 'https://opendata.arcgis.com/datasets/e2db218c663f4b9f9210150513a6c54a_19.geojson';
@@ -315,20 +318,5 @@ function loadData(){
   });
 }
 
+*/
 
-
-
-
-photoDownload();
-
-
-var exif = require( "jpeg-exif");
- 
-const filePath = "./1574580460987googletest.jpg";
-const data = exif.parseSync(filePath);
-
-var rawLatLong = data.GPSInfo;
-var coordinates = {"x": 0, "y": 0};
-coordinates.x = parseFloat(rawLatLong.GPSLatitude[0] + rawLatLong.GPSLatitude[1] / 60 + rawLatLong.GPSLatitude[2]/3600);
-coordinates.y = -parseFloat(rawLatLong.GPSLongitude[0] + rawLatLong.GPSLongitude[1] / 60 + rawLatLong.GPSLongitude[2]/3600);
-console.log(coordinates);
